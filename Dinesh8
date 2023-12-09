@@ -1,0 +1,24 @@
+import pandas as pd
+
+def unroll_distance_matrix(distance_matrix):
+  """
+  This function takes a DataFrame representing distances between IDs and returns a new DataFrame with three columns: id_start, id_end, and distance.
+
+  Args:
+    distance_matrix: A DataFrame with IDs as rows and columns, containing distances between each pair of IDs.
+
+  Returns:
+    A new DataFrame with three columns: id_start, id_end, and distance, containing all unique combinations of IDs and their corresponding distances.
+  """
+  # Create an empty DataFrame with three columns
+  unrolled_matrix = pd.DataFrame(columns=['id_start', 'id_end', 'distance'])
+
+  # Extract unique combinations of IDs
+  id_combinations = [(i, j) for i in distance_matrix.index for j in distance_matrix.index if i != j]
+
+  # Add each combination with its corresponding distance to the new DataFrame
+  for id_start, id_end in id_combinations:
+    distance = distance_matrix.loc[id_start, id_end]
+    unrolled_matrix = unrolled_matrix.append({'id_start': id_start, 'id_end': id_end, 'distance': distance}, ignore_index=True)
+
+  return unrolled_matrix
