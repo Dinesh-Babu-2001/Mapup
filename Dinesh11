@@ -1,0 +1,58 @@
+import pandas as pd
+from datetime import datetime, time, timedelta
+
+def calculate_time_based_toll_rates(df):
+  """
+  This function takes a DataFrame and calculates time-based toll rates for different vehicle types.
+
+  Args:
+    df: A DataFrame with columns 'id_start', 'id_end', 'distance', 'moto', 'car', 'rv', 'bus', and 'truck'.
+
+  Returns:
+    A new DataFrame with additional columns for time intervals and modified vehicle columns based on time-based discounts.
+  """
+  # Define time intervals for weekdays
+  weekday_intervals = {
+    'morning': (time(0, 0, 0), time(10, 0, 0)),
+    'peak': (time(10, 0, 0), time(18, 0, 0)),
+    'evening': (time(18, 0, 0), time(23, 59, 59)),
+  }
+
+  # Define discount factor for weekends
+  weekend_discount = 0.7
+
+  # Create new columns for times
+  df['start_day'] = None
+  df['start_time'] = None
+  df['end_day'] = None
+  df['end_time'] = None
+
+  # Split data based on weekdays and weekends
+  weekday_df = df[df['start_day'].isin(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])]
+  weekend_df = df[~df['start_day'].isin(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])]
+
+  # Apply time-based discounts for weekdays
+  for index, row in weekday_df.iterrows():
+    for interval_name, (start_time, end_time) in weekday_intervals.items():
+      if row['start_time'] >= start_time and row['start_time'] < end_time:
+        discount_factor = 0.8 if interval_name in ['morning', 'evening'] else 1.2
+        for vehicle in ['moto', 'car', 'rv', 'bus', 'truck']:
+          df.loc[index, vehicle] *= discount_factor
+
+  # Apply weekend discount for all vehicles
+  for index, row in weekend_df.iterrows():
+    for vehicle in ['moto', 'car', 'rv', 'bus', 'truck']:
+      df.loc[index, vehicle] *= weekend_discount
+
+  # Fill missing time information
+  for index, row in df.iterrows():
+    if row['start_time'] is None:
+      df.loc[index, 'start_time'] = time(0, 0, 0)
+    if row['end_time'] is None:
+      df.loc[index, 'end_time'] = row['start_time'] + timedelta(days=1, hours=23, minutes=59, seconds=59)
+
+  # Convert start and end time to datetime
+  df['start_time'] = df['start_time'].apply(lambda t: datetime.combine(datetime(1, 1, 1), t))
+  df['end_time'] = df['end_time'].apply(lambda t: datetime.combine(datetime(1, 1, 1), t))
+
+  return df
