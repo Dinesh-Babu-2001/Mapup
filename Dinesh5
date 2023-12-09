@@ -1,0 +1,27 @@
+import pandas as pd
+
+def multiply_matrix(df):
+  """
+  This function takes a DataFrame and modifies each value according to the following logic:
+    - If a value is greater than 20, multiply it by 0.75.
+    - If a value is 20 or less, multiply it by 1.25.
+
+  Args:
+    df: A DataFrame with numerical values.
+
+  Returns:
+    A new DataFrame with the modified values rounded to 1 decimal place.
+  """
+  def apply_multiplier(value):
+    if value > 20:
+      return value * 0.75
+    else:
+      return value * 1.25
+
+  # Apply the multiplier function to each value in the DataFrame
+  modified_df = df.applymap(apply_multiplier)
+
+  # Round values to 1 decimal place
+  modified_df = modified_df.round(1)
+
+  return modified_df
