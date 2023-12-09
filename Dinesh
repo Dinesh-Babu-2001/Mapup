@@ -1,0 +1,31 @@
+import numpy as np
+import pandas as pd
+
+# Read the CSV file into a Pandas DataFrame
+df = pd.read_csv("datasets/dataset-1.csv")
+
+def generate_car_matrix(df):
+  """
+  Generates a car matrix from a DataFrame.
+
+  Args:
+      df: A DataFrame with columns 'id_1', 'id_2', and 'car'.
+
+  Returns:
+      A new DataFrame with values from 'car' as values, 'id_2' as columns,
+      and 'id_1' as index. Diagonal values are set to 0.
+  """
+
+  # Pivot table with values from 'car' as values, 'id_2' as columns, and 'id_1' as index
+  car_matrix = df.pivot_table(index="id_1", columns="id_2", values="car")
+
+  # Set diagonal values to 0 using NumPy indexing and masking
+  car_matrix.values[np.eye(len(car_matrix)).astype(bool)] = 0
+
+  return car_matrix
+
+# Generate the car matrix
+car_matrix = generate_car_matrix(df.copy())
+
+# Print the car matrix
+print(car_matrix)
