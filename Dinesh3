@@ -1,0 +1,37 @@
+import pandas as pd
+
+def get_bus_indexes(df):
+  """
+  This function takes a DataFrame and returns the indices as a list (sorted in ascending order) where the 'bus' values are greater than twice the mean value of the 'bus' column.
+
+  Args:
+    df: A DataFrame with a column named 'bus'.
+
+  Returns:
+    A list of indices where the 'bus' values are greater than twice the mean value of the 'bus' column.
+  """
+  # Calculate the mean value of the 'bus' column
+  mean_bus_value = df['bus'].mean()
+
+  # Filter the DataFrame to include only rows where the 'bus' value is greater than twice the mean
+  filtered_df = df[df['bus'] > 2 * mean_bus_value]
+
+  # Get the indices of the filtered DataFrame
+  bus_indexes = filtered_df.index.to_list()
+
+  # Sort the indices in ascending order
+  bus_indexes.sort()
+
+  return bus_indexes
+
+# Example usage
+df = pd.DataFrame({
+  'id_1': [1, 2, 3, 4, 5],
+  'id_2': [2, 3, 4, 5, 1],
+  'car': [10, 20, 30, 40, 50],
+  'bus': [5, 10, 15, 20, 25]
+})
+
+bus_indexes = get_bus_indexes(df.copy())
+
+print(bus_indexes)
