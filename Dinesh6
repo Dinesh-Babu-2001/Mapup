@@ -1,0 +1,26 @@
+import pandas as pd
+
+def check_timestamps(df):
+  """
+  This function checks if the timestamps for each unique (id, id_2) pair in a DataFrame cover a full 24-hour period and span all 7 days of the week.
+
+  Args:
+    df: A DataFrame with columns 'id', 'id_2', 'startDay', 'startTime', 'endDay', and 'endTime'.
+
+  Returns:
+    A boolean Series with multi-index (id, id_2) indicating if each pair has incorrect timestamps.
+  """
+  # Convert timestamps to datetime objects
+  df['startTime'] = pd.to_datetime(df[['startDay', 'startTime']].apply(lambda x: f'{x[0]} {x[1]}', axis=1))
+  df['endTime'] = pd.to_datetime(df[['endDay', 'endTime']].apply(lambda x: f'{x[0]} {x[1]}', axis=1))
+
+  # Calculate duration and day difference
+  df['duration'] = df['endTime'] - df['startTime']
+  df['day_diff'] = df['endTime'].dt.day - df['startTime'].dt.day
+
+  # Check if duration covers 24 hours and day difference covers 7 days
+  incorrect_timestamps = ~((df['duration'] >= pd.Timedelta(hours=24)) & (df['day_diff'] >= 6))
+
+  # Set multi-index and return
+  incorrect_timestamps.index = pd.MultiIndex.from_tuples([(row['id'], row['id_2']) for _, row in df.iterrows()])
+  return incorrect_timestamps
