@@ -1,0 +1,33 @@
+import pandas as pd
+
+def calculate_distance_matrix(df):
+  """
+  This function takes a DataFrame with information about routes and distances between toll locations and generates a DataFrame representing distances between all IDs.
+
+  Args:
+    df: A DataFrame with columns 'from_location', 'to_location', and 'distance'.
+
+  Returns:
+    A DataFrame with distances between all IDs, where diagonal values are 0 and the matrix is symmetric.
+  """
+  # Create an empty DataFrame with IDs as both rows and columns
+  distance_matrix = pd.DataFrame(0.0, index=df['from_location'].unique(), columns=df['from_location'].unique())
+
+  # Fill the matrix with distances from the input data
+  for row in df.itertuples():
+    from_location, to_location, distance = row[1], row[2], row[3]
+    distance_matrix.loc[from_location, to_location] = distance
+    distance_matrix.loc[to_location, from_location] = distance
+
+  # Calculate cumulative distances along known routes
+  for i in range(len(distance_matrix)):
+    for j in range(len(distance_matrix)):
+      for k in range(len(distance_matrix)):
+        if distance_matrix.loc[i, j] > 0 and distance_matrix.loc[j, k] > 0:
+          if distance_matrix.loc[i, k] == 0 or distance_matrix.loc[i, k] > distance_matrix.loc[i, j] + distance_matrix.loc[j, k]:
+            distance_matrix.loc[i, k] = distance_matrix.loc[i, j] + distance_matrix.loc[j, k]
+
+  # Set diagonal values to 0
+  np.fill_diagonal(distance_matrix.values, 0)
+
+  return distance_matrix
