@@ -1,0 +1,20 @@
+import pandas as pd
+
+def filter_routes(df):
+  """
+  This function takes a DataFrame and returns the sorted list of values of column 'route' for which the average of values of 'truck' column is greater than 7.
+
+  Args:
+    df: A DataFrame with columns 'route' and 'truck'.
+
+  Returns:
+    A sorted list of values of column 'route' for which the average of values of 'truck' column is greater than 7.
+  """
+  # Calculate average truck value for each route
+  avg_truck_per_route = df.groupby('route')['truck'].mean()
+
+  # Filter routes with average truck value greater than 7
+  high_truck_routes = avg_truck_per_route[avg_truck_per_route > 7]
+
+  # Sort and return list of routes
+  return high_truck_routes.sort_values().index.to_list()
